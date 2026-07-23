@@ -10,9 +10,9 @@ Thumbs.db
 # Node
 node_modules/
 
-# 템플릿 데이터(용량 큰 base64 생성물 — 저장소에서 제외)
-templates.js
-docx-templates.js
+# 템플릿은 원본 파일 대신 base64 내장 JS로 포함(추적):
+#   templates.js(HWPX 30개) · docx-templates.js(DOCX 30개)
+# → file:// 및 GitHub Pages 어디서든 fetch 없이 동작.
 
 # 백업 파일
 *.bak-*

@@ -26,25 +26,29 @@
 | `data.js` | 문항 데이터 모델(SSOT). `loadPool()` 경계로 접근 — 나중에 DB 전환 시 이 파일만 교체 |
 | `data.hwp.js` | hwp/hwpx/docx 생성용 `groups` 데이터(엔진이 읽는 형식) |
 
+**템플릿 (base64 내장)**
+
+| 파일 | 역할 |
+|---|---|
+| `templates.js` | HWPX 정본 30종(단수 × 글자크기 × 문항간격 조합)을 base64로 내장 → `window.HWPX_TEMPLATES`. 원본 `.hwpx`를 개별 첨부하는 대신 JS 한 파일로 제공하므로 `fetch` 없이 `file://`·GitHub Pages 어디서든 동작 |
+| `docx-templates.js` | DOCX 30종 base64 내장 → `window.DOCX_TEMPLATES` |
+
 ## 설계 개요
 
 - **하나의 데이터 모델 → 3포맷 공통 생성.** 문항 데이터(`groups`)와 서식 규칙(글자크기/줄간격/문항간격)을 `ne-export-common.js`에 SSOT로 두고 세 엔진이 공유합니다.
 - **템플릿 본문교체 방식(HWPX/DOCX).** 레이아웃을 코드로 처음부터 조립하지 않고, 검증된 정본 샘플의 스타일·다단 정의를 추출·재사용하고 본문 문단만 데이터로 교체합니다. → 뷰어 호환성과 레이아웃 안정성 확보.
 - **뷰어 호환.** 한글(HWP Office)에서 2단 다단·밑줄 연속선·헤더 점선박스가 안정적으로 렌더되도록 맞춤.
 
-## 실행에 필요한 것 (이 저장소에 포함되지 않음)
+## 실행에 필요한 것
 
-경량화를 위해 **템플릿 데이터는 제외**했습니다. `index.html`을 열어 화면·엔진 연결 구조는 볼 수 있지만, **실제 파일 생성(다운로드)까지 돌리려면 아래가 추가로 필요**합니다.
+템플릿을 base64 JS(`templates.js`·`docx-templates.js`)로 내장했으므로, **`index.html`을 열면(로컬 `file://` 또는 GitHub Pages) 별도 준비 없이 HWP·HWPX·DOCX 다운로드가 모두 동작**합니다. 유일한 외부 의존은 CDN 라이브러리 두 개뿐이며 `index.html`이 자동으로 로드합니다.
 
-1. **정본 템플릿** — HWPX/DOCX 엔진은 정본 샘플을 읽어 스타일을 재사용합니다.
-   - `HWPX_TEMPLATES` / `DOCX_TEMPLATES` 전역(base64 내장, `file://`용)이 있으면 그것을 우선 사용하고,
-   - 없으면 `templates/*.hwpx` · `docx/*.docx`를 `fetch`로 읽습니다(HTTP 서빙 필요).
-   - 이 저장소에는 둘 다 없으므로, 다운로드를 실행하려면 원본(v2.6)의 `templates.js`·`docx-templates.js`를 함께 두거나 `templates/`·`docx/` 폴더를 채워야 합니다.
-2. **외부 라이브러리(CDN)**
-   ```html
-   <script src="https://cdn.jsdelivr.net/npm/jszip@3.10.1/dist/jszip.min.js"></script>
-   <script src="https://cdn.jsdelivr.net/npm/docx@8.5.0/build/index.umd.js"></script>
-   ```
+```html
+<script src="https://cdn.jsdelivr.net/npm/jszip@3.10.1/dist/jszip.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/docx@8.5.0/build/index.umd.js"></script>
+```
+
+> 템플릿 원본(`.hwpx`) 30개는 개별 파일로 첨부하지 않고 `templates.js` 안에 base64로 담았습니다. 원본을 수정할 일이 생기면 v2.6의 `build-templates-js.py`로 `templates/` 폴더에서 `templates.js`를 재생성하면 됩니다.
 
 ## 사용법
 
