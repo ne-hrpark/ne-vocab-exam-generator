@@ -1,0 +1,18 @@
+# OS
+.DS_Store
+Thumbs.db
+
+# Editor / tooling
+.vscode/
+.idea/
+.claude/
+
+# Node
+node_modules/
+
+# 템플릿 데이터(용량 큰 base64 생성물 — 저장소에서 제외)
+templates.js
+docx-templates.js
+
+# 백업 파일
+*.bak-*
