@@ -9,12 +9,22 @@
 
 ## 구성 파일
 
+**다운로드 엔진 (본인 작업)**
+
 | 파일 | 역할 |
 |---|---|
 | `ne-export-common.js` | 3개 엔진이 공유하는 공용 헬퍼. 글자크기 × 문항간격 규칙(SSOT: `neVocab*`), 1단 유형 후미배치(`neReorderFullLast`), `file://`에서도 동작하는 저장 헬퍼(`saveBlobCompat`) |
 | `hwpx-tpl-export.js` | **HWPX** 생성 — 정본 샘플의 레이아웃(header/스타일/다단)은 그대로 두고 `Contents/section0.xml` 본문만 데이터로 재조립하는 "템플릿 본문교체" 방식. "열리지만 깨지는" 문제 제거 |
 | `docx-tpl-export.js` | **DOCX** 생성 — HWPX와 동일 아이디어의 워드 판(版). 표 없이 신문형 다단(`<w:cols>`) + 우측탭 밑줄 정렬 |
 | `hwpml-export.js` | **HWP** 생성 — 구버전 한글(2007~2010) 호환용 HWPML 2.8 단일 XML(from-scratch). `.hwpx`(OWPML)는 한글 2014+ 전용이라 그 이전 버전용 fallback |
+
+**프론트 / 데이터 (엔진 호출부)**
+
+| 파일 | 역할 |
+|---|---|
+| `index.html` | 시험지 화면 + 다운로드 버튼. 엔진을 어떻게 로드·호출하는지 보여주는 실제 프론트. **UI/화면은 팀 공동 작업**이며, 하단 스크립트 로딩부와 `download*()` 호출부가 위 엔진과 연결되는 지점 |
+| `data.js` | 문항 데이터 모델(SSOT). `loadPool()` 경계로 접근 — 나중에 DB 전환 시 이 파일만 교체 |
+| `data.hwp.js` | hwp/hwpx/docx 생성용 `groups` 데이터(엔진이 읽는 형식) |
 
 ## 설계 개요
 
@@ -24,11 +34,12 @@
 
 ## 실행에 필요한 것 (이 저장소에 포함되지 않음)
 
-경량화를 위해 **템플릿 데이터는 제외**했습니다. 실제 파일 생성까지 돌리려면 아래가 추가로 필요합니다.
+경량화를 위해 **템플릿 데이터는 제외**했습니다. `index.html`을 열어 화면·엔진 연결 구조는 볼 수 있지만, **실제 파일 생성(다운로드)까지 돌리려면 아래가 추가로 필요**합니다.
 
 1. **정본 템플릿** — HWPX/DOCX 엔진은 정본 샘플을 읽어 스타일을 재사용합니다.
    - `HWPX_TEMPLATES` / `DOCX_TEMPLATES` 전역(base64 내장, `file://`용)이 있으면 그것을 우선 사용하고,
    - 없으면 `templates/*.hwpx` · `docx/*.docx`를 `fetch`로 읽습니다(HTTP 서빙 필요).
+   - 이 저장소에는 둘 다 없으므로, 다운로드를 실행하려면 원본(v2.6)의 `templates.js`·`docx-templates.js`를 함께 두거나 `templates/`·`docx/` 폴더를 채워야 합니다.
 2. **외부 라이브러리(CDN)**
    ```html
    <script src="https://cdn.jsdelivr.net/npm/jszip@3.10.1/dist/jszip.min.js"></script>
