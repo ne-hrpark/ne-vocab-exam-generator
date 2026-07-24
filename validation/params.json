@@ -1,6 +1,6 @@
 {
   "1단_9": {
-    "skeleton": "skeleton_1단_9.hwpx",
+    "base_template": "어휘시험지_1단_9_보통(155%).hwpx",
     "labels": {
       "좁게": 145,
       "보통": 155,
@@ -16,7 +16,7 @@
     ]
   },
   "1단_11": {
-    "skeleton": "skeleton_1단_11.hwpx",
+    "base_template": "어휘시험지_1단_11_보통(160%).hwpx",
     "labels": {
       "좁게": 150,
       "보통": 160,
@@ -32,7 +32,7 @@
     ]
   },
   "1단_13": {
-    "skeleton": "skeleton_1단_13.hwpx",
+    "base_template": "어휘시험지_1단_13_보통(170%).hwpx",
     "labels": {
       "좁게": 165,
       "보통": 170,
@@ -47,7 +47,7 @@
     ]
   },
   "2단_9": {
-    "skeleton": "skeleton_2단_9.hwpx",
+    "base_template": "어휘시험지_2단_9_보통(155%).hwpx",
     "labels": {
       "좁게": 145,
       "보통": 155,
@@ -67,7 +67,7 @@
     ]
   },
   "2단_11": {
-    "skeleton": "skeleton_2단_11.hwpx",
+    "base_template": "어휘시험지_2단_11_보통(160%).hwpx",
     "labels": {
       "좁게": 150,
       "보통": 160,
@@ -87,7 +87,7 @@
     ]
   },
   "2단_13": {
-    "skeleton": "skeleton_2단_13.hwpx",
+    "base_template": "어휘시험지_2단_13_보통(170%).hwpx",
     "labels": {
       "좁게": 165,
       "보통": 170,

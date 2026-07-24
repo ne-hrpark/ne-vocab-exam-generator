@@ -39,25 +39,24 @@
 | 파일                  | 역할                                                                                                                                                                                                                                                                           |
 | --------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
 | `templates.js`      | HWPX 정본**18종**(단2 × 크기3 × 간격3)의 내부 XML을 **텍스트 그대로** 내장 → `window.HWPX_TEMPLATES`. 원본 `.hwpx`를 개별 첨부하는 대신 JS 한 파일로 제공하므로 `fetch` 없이 `file://`·GitHub Pages 어디서든 동작 (base64 아님 → grep·직접수정 가능) |
-| `docx-templates.js` | DOCX**18종(실참조)** 을 통째로 base64 내장 → `window.DOCX_TEMPLATES` (디스크엔 백업 12개 포함 30개 잔존)                                                                                                                                                              |
+| `docx-templates.js` | DOCX**18종** 을 통째로 base64 내장 → `window.DOCX_TEMPLATES` (원본 `docx/`도 18개 — 미참조 백업 12개 삭제)                                                                                                                                                              |
 
 **정본 원본 & 재생성 (정본이 바뀌면 여기서 작업)**
 
 | 경로 | 역할 |
 |---|---|
-| `templates/` (18 `.hwpx`) | HWPX 정본 **원본 파일**. 한글에서 이걸 수정 → `build-templates-js.py`로 `templates.js` 재생성 |
-| `docx/` (`1단/`·`2단/`) | DOCX 정본 **원본 파일**. Word에서 수정 → `build-docx-templates.py`로 `docx-templates.js` 재생성 |
-| `build-templates-js.py` | `templates/*.hwpx` → `templates.js` 생성 |
-| `build-docx-templates.py` | `docx/{단}단/{크기}/*.docx` → `docx-templates.js` 생성 |
-| `extract-templates-from-js.py` | 역방향: `templates.js` → `templates/` 복원(정본을 다시 손봐야 할 때) |
+| `templates/` (18 `.hwpx`) | HWPX 정본 **원본 파일**. 한글에서 이걸 수정 → `tools/build-templates-js.py`로 `templates.js` 재생성 |
+| `docx/` (`1단/`·`2단/`) | DOCX 정본 **원본 파일**. Word에서 수정 → `tools/build-docx-templates.py`로 `docx-templates.js` 재생성 |
+| `tools/build-templates-js.py` | `templates/*.hwpx` → `templates.js` 생성 |
+| `tools/build-docx-templates.py` | `docx/{단}단/{크기}/*.docx` → `docx-templates.js` 생성 |
+| `tools/extract-templates-from-js.py` | 역방향: `templates.js` → `templates/` 복원(정본을 다시 손봐야 할 때) |
 
 **검증 트랙 (`validation/`, 선택 — 정확도 대조용)**
 
 | 경로 | 역할 |
 |---|---|
 | `validation/build.py`·`gen_section.py` | HWPX를 **순수 Python으로 독립 생성**(브라우저 엔진의 이식본). 정본 수정 후 산출물이 어긋나지 않는지 바이트 대조(오라클)에 사용 |
-| `validation/skeletons/` (6) | 검증용 스켈레톤(1·2단 × 9/11/13pt) |
-| `validation/params.json`·`content.json` | 조합 파라미터 · 샘플 입력 |
+| `validation/params.json`·`content.json` | 계열별 기준 정본(= `templates/`의 '보통' 6개) · 줄간격 · 샘플 입력. **별도 스켈레톤 사본 없이** `templates/` 정본을 직접 읽음 |
 
 ## 설계 개요
 
@@ -86,18 +85,18 @@
 ```bash
 # 1) templates/ 안의 해당 .hwpx 를 한글에서 열어 수정·저장 (또는 새 정본으로 교체)
 # 2) 내장 JS 재생성
-python build-templates-js.py     # templates/*.hwpx → templates.js
+python tools/build-templates-js.py     # templates/*.hwpx → templates.js
 ```
 
 **DOCX 정본 변경 시**
 ```bash
 # 1) docx/{단}단/{크기}/ 의 해당 .docx 를 Word에서 수정·저장
 # 2) 내장 JS 재생성
-python build-docx-templates.py   # docx/**/*.docx → docx-templates.js
+python tools/build-docx-templates.py   # docx/**/*.docx → docx-templates.js
 ```
 
 - 재생성 후 `index.html`을 다시 열면 바뀐 정본이 반영됩니다. `templates.js`·`docx-templates.js`는 **자동 생성물이라 손으로 고치지 마세요**(다음 재생성 때 덮어써짐).
-- `templates.js`만 있고 원본 폴더가 없을 때: `python extract-templates-from-js.py`로 `templates/`를 복원한 뒤 수정 → 재생성.
+- `templates.js`만 있고 원본 폴더가 없을 때: `python tools/extract-templates-from-js.py`로 `templates/`를 복원한 뒤 수정 → 재생성.
 - (선택) 재생성 결과가 기존과 어긋나지 않는지 검증: `validation/`의 `build.py`로 같은 조합을 Python 독립 생성해 바이트 대조(부록 §10 오라클).
 - ⚠️ 줄간격 %는 HWPX 정본 **파일명**(`…(N%).hwpx`)과 물려 있어, 그 파일이 실재하는 범위에서만 조합을 바꿀 수 있습니다(부록 §9.1).
 
@@ -151,7 +150,7 @@ python build-docx-templates.py   # docx/**/*.docx → docx-templates.js
 | **DOCX** | .docx  | zip + OOXML        | 정본 18개<br />**word/document.xml만 교체** | MS Word                                             | docx-tpl-export.js                                      |
 | **HWP**  | .hwp   | HWPML 2.8 단일 XML | **from-scratch 조립**(템플릿 없음)          | 구버전 한글<br />(2007~2010, HWPX 미지원 2014 미만) | hwpml-export.js                                         |
 
-> **정본 개수 = 단(2) × 크기(3) × 줄간격(3) = 18개** (2026-07-23 확정). 원래 줄간격 5단계(매우좁게~매우넓게)라 30개였으나, 슬라이더가 3단계(좁게/보통/넓게)로 축소(2026-07-22)되며 코드가 3단계만 참조 → **매우좁게·매우넓게 12개는 미참조**. **HWPX는 이 12개를 디스크에서도 삭제(2026-07-23) → `templates/`·`templates.js` 모두 18개.** DOCX는 아직 디스크에 백업 12개가 남아 30개(실참조는 18개).
+> **정본 개수 = 단(2) × 크기(3) × 줄간격(3) = 18개** (2026-07-23 확정). 원래 줄간격 5단계(매우좁게~매우넓게)라 30개였으나, 슬라이더가 3단계(좁게/보통/넓게)로 축소(2026-07-22)되며 코드가 3단계만 참조 → **매우좁게·매우넓게 12개는 미참조**. **HWPX·DOCX 모두 미참조 12개를 디스크에서도 삭제 → `templates/`·`docx/`·`templates.js`·`docx-templates.js` 전부 18개.**
 
 ### 데이터 삽입 — 어떤 태그로 어떻게 넣나
 
@@ -214,12 +213,12 @@ python build-docx-templates.py   # docx/**/*.docx → docx-templates.js
 - `window.HWPX_TEMPLATES = { "파일명.hwpx": { "Contents/header.xml": \`...\`, "Contents/section0.xml": \`...\`, ... } }`
 - 정본 내부 XML을 **base64가 아니라 텍스트 그대로** 담음 → grep·직접수정 가능.
 - 런타임(브라우저 `file://`)이 이걸 읽어 zip을 즉석 조립 → **서버 없이 동작**([hwpx-tpl-export.js:978](hwpx-tpl-export.js#L978)).
-- 원본 폴더 `templates/*.hwpx`(**18개** — 매우좁게·매우넓게 백업 12개는 2026-07-23 삭제)는 **편집용 원본**. 수정 후 `build-templates-js.py`로 재생성. 역복원은 `extract-templates-from-js.py`.
+- 원본 폴더 `templates/*.hwpx`(**18개** — 매우좁게·매우넓게 백업 12개는 2026-07-23 삭제)는 **편집용 원본**. 수정 후 `tools/build-templates-js.py`로 재생성. 역복원은 `tools/extract-templates-from-js.py`.
 
 ### DOCX — `docx-templates.js`
 
 - `window.DOCX_TEMPLATES = { "파일명.docx": "<base64>" }` — docx를 **통째로 base64**.
-- 원본 `docx/{단}단/{크기}/*.docx`(디스크 30개, **실참조 18개** — 매우좁게·매우넓게 12개는 미참조 백업. HWPX와 달리 아직 디스크 삭제 안 함). 재생성 `build-docx-templates.py`.
+- 원본 `docx/{단}단/{크기}/*.docx`(**18개** — 매우좁게·매우넓게 백업 12개 삭제). 재생성 `tools/build-docx-templates.py`.
 
 ### HWP — 없음
 
@@ -231,13 +230,13 @@ python build-docx-templates.py   # docx/**/*.docx → docx-templates.js
 
 ### 정본·스켈레톤 위치 (이 저장소)
 
-생성기가 실제 참조하는 정본·스켈레톤은 아래에 있다.
+생성기가 실제 참조하는 정본은 아래에 있다.
 
 | 구분 | 위치 | 비고 |
 |---|---|---|
-| **활성 정본 — HWPX** | `templates/` (18개) | `build-templates-js.py`가 읽어 `templates.js` 생성 |
-| **활성 정본 — DOCX** | `docx/{단}단/{크기}/` | `build-docx-templates.py`가 읽어 `docx-templates.js` 생성 |
-| **활성 스켈레톤(검증용)** | `validation/skeletons/` (6개) | `validation/gen_section.py` 참조 |
+| **활성 정본 — HWPX** | `templates/` (18개) | `tools/build-templates-js.py`가 읽어 `templates.js` 생성 |
+| **활성 정본 — DOCX** | `docx/{단}단/{크기}/` (18개) | `tools/build-docx-templates.py`가 읽어 `docx-templates.js` 생성 |
+| **검증 기준 정본** | `templates/`의 '보통' 6개 | `validation/build.py`가 직접 읽음(별도 스켈레톤 사본 없음, `params.json`의 `base_template`) |
 
 > **저장소에 미포함(내부 분석 자산):** 원본 프로젝트에는 `_참고정본/`(구버전·참조 템플릿), `print_sample_0722/`(헤더 설계 기준이 된 최종 인쇄본), `hwp_0723_hml/`(§18 hwp 전환용 1단 `.hml` 3개)가 있으나, **실행·재생성에는 불필요**하여 이 배포 저장소에서는 제외했다. 아래 서술에서 이 폴더들이 언급되면 "설계 근거/향후 전환 자산"이라는 뜻이며 저장소에는 없다.
 
@@ -541,11 +540,11 @@ hwpxlib는 "valid HWPX 쓰기"를 대신할 뿐, 우리 실제 문제인 **한�
 | `hwpml-export.js` | HWP 생성기(from-scratch). `window.downloadHwp` |
 | `templates.js` (+ 원본 `templates/*.hwpx` 18개) | HWPX 정본 18개(텍스트 내장, `file://` 동작) |
 | `ne-export-common.js` | 공용 SSOT(줄간격·간격 규칙, `neReorderFullLast`, 저장 헬퍼) |
-| `build-templates-js.py` / `extract-templates-from-js.py` | `templates.js` ↔ `templates/` 원본 변환 |
-| `build-docx-templates.py` (+ 원본 `docx/`) | `docx-templates.js` 재생성 |
+| `tools/build-templates-js.py` / `tools/extract-templates-from-js.py` | `templates.js` ↔ `templates/` 원본 변환 |
+| `tools/build-docx-templates.py` (+ 원본 `docx/`) | `docx-templates.js` 재생성 |
 | `validation/build.py` | 검증용 로컬 CLI 진입점 |
 | `validation/gen_section.py` | 브라우저 생성기 `hwpx-tpl-export.js`의 Python 이식(오라클) |
-| `validation/skeletons/*.hwpx` (6개) + `validation/params.json` | 검증용 스켈레톤(1·2단 × 9/11/13pt) · 조합 파라미터 |
+| `validation/params.json` | 계열별 기준 정본(`templates/` 보통 6개)·줄간격·paraPr id (스켈레톤 사본 없음) |
 
 ---
 
@@ -727,4 +726,5 @@ _이 문서는 아키텍처 개요 + 구현 상세 통합본이다. 세부 결�
 ## 라이선스
 
 사내(능률교육) 프로젝트에서 분리한 개인 아카이브입니다. 별도 명시 전까지 무단 재배포·상업적 사용을 제한합니다.
+
 

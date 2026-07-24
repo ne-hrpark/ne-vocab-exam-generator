@@ -76,9 +76,11 @@ def build(dan, size, spacing, content_path=None, out_dir=None, view="문제", ti
         raise SystemExit(f"[에러] 조합 {key} 없음. 가능: {list(PARAMS)}")
     fam = PARAMS[key]
     pct = resolve_spacing(fam, spacing)
-    skel = os.path.join(ROOT, "skeletons", fam["skeleton"])
+    # 기준 파일 = 저장소 루트 templates/ 의 '보통' 정본(단수×크기당 1개).
+    # 스켈레톤 별도 사본 대신 정본을 직접 읽어 정본 단일화(중복·drift 제거).
+    skel = os.path.join(ROOT, "..", "templates", fam["base_template"])
     if not os.path.exists(skel):
-        raise SystemExit(f"[에러] 스켈레톤 없음: {skel}")
+        raise SystemExit(f"[에러] 기준 정본 없음: {skel}")
 
     view_key = VIEW_ALIASES.get(view)
     if view_key is None:

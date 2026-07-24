@@ -11,7 +11,7 @@ docx-tpl-export.js 가 이 내장 base64 로 JSZip.loadAsync → file:// 에서�
 DOCX 내부엔 theme/fontTable 등 바이너리성 파일이 있어 텍스트 리터럴 대신 zip 전체를 base64 로 담는다.
 생성기는 word/document.xml 만 교체하므로 템플릿 본문(샘플 단어)은 무시된다.
 
-경로/폴더 표기는 실제 docx/ 구조(../docx, 프로젝트 루트 기준)를 따른다.
+경로/폴더 표기는 이 저장소의 docx/ 구조(스크립트는 tools/, 정본은 상위 저장소 루트의 ../docx)를 따른다.
 사전제작 파일 교체 시 이 스크립트를 재실행. (Word 임시 잠금파일 ~$… 는 자동 제외)
 """
 import base64
@@ -22,9 +22,10 @@ import sys
 sys.stdout = io.TextIOWrapper(sys.stdout.buffer, encoding='utf-8')
 
 ROOT = os.path.dirname(os.path.abspath(__file__))
-# docx/ 는 프로젝트 루트(= 이 스크립트 상위의 상위) 아래에 있음
-SRC = os.path.normpath(os.path.join(ROOT, '..', 'docx'))
-OUT = os.path.join(ROOT, 'docx-templates.js')
+# 이 스크립트는 tools/ 에 있고, 정본·산출물은 저장소 루트(상위)에 있음.
+REPO = os.path.dirname(ROOT)
+SRC = os.path.join(REPO, 'docx')
+OUT = os.path.join(REPO, 'docx-templates.js')
 
 entries = []
 count = 0

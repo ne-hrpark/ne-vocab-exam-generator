@@ -23,8 +23,10 @@ import zipfile
 sys.stdout = io.TextIOWrapper(sys.stdout.buffer, encoding='utf-8')
 
 ROOT = os.path.dirname(os.path.abspath(__file__))
-SRC = os.path.join(ROOT, 'templates')
-OUT = os.path.join(ROOT, 'templates.js')
+# 이 스크립트는 tools/ 에 있고, 정본·산출물은 저장소 루트(상위)에 있음.
+REPO = os.path.dirname(ROOT)
+SRC = os.path.join(REPO, 'templates')
+OUT = os.path.join(REPO, 'templates.js')
 
 files = sorted(f for f in os.listdir(SRC) if f.lower().endswith('.hwpx'))
 if not files:

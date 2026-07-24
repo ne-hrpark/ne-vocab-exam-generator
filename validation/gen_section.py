@@ -1,9 +1,9 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 """
-검증용 section0 본문 생성기 — 브라우저 엔진 hwpx-tpl-export.js 의 Python 이식.
+v2.7 section0 본문 생성기 — v2.6 hwpx-tpl-export.js 의 Python 이식.
 
-이식 원본(오라클 대조 기준): ../hwpx-tpl-export.js (저장소 루트)
+정본 소스: ../ne-vocabulary-test-builder-v2.6/hwpx-tpl-export.js
   - 스켈레톤 section0/header 를 프로파일링(profileTemplate)해 스타일 ID/탭스톱/colPr 을 추출하고,
     content(NE_POOL 구조)로부터 본문 <hp:p> 를 다시 만든다.
   - 죽은 실험 플래그(NORMALIZE_DEFAULT_TO_CASE / QA_MARKER_LEFT_ALIGN /

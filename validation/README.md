@@ -18,18 +18,19 @@ v2.6은 정본 HWPX **30개**를 base64로 내장(`templates.js`)하고, 브라�
 - **section0.xml에는 줄간격이 없음** — 오직 header.xml paraPr. section의 byte 차이는 `<hp:lineseg>` 레이아웃 캐시뿐 (한글이 열 때 재계산).
 - 30개는 손 관리하다 표류(drift)가 낌 (예: `2단_13_매우넓게`에만 paraPr 하나 추가돼 이후 id 밀림). 생성 방식이 오히려 더 일관됨.
 
-→ **본질 = 스켈레톤 6개(1단/2단 × 9/11/13) + 줄간격 숫자 주입.**
+→ **본질 = 기준 파일 6개(1단/2단 × 9/11/13) + 줄간격 숫자 주입.**
+
+> **[2026-07-24] 스켈레톤 사본 제거 — 정본 단일화.** 예전엔 `skeletons/`에 6개 사본을 뒀으나, 확인 결과 그 6개는 저장소 루트 `templates/`의 **'보통' 정본 6개와 바이트 완전 동일**했다. 중복·drift(정본만 고치고 스켈레톤은 안 고쳐 검증이 헛도는 위험)를 없애려고 `skeletons/`를 삭제하고, `build.py`가 `../templates/`의 '보통' 정본을 **기준 파일**로 직접 읽는다. `params.json`의 `base_template`이 그 파일명(예: `어휘시험지_1단_9_보통(155%).hwpx`).
 
 ## 구조
 
 ```
-v2.7/
-  skeletons/          6개 스켈레톤 hwpx (각 계열 '보통' 변형에서 복사)
-    skeleton_1단_9.hwpx ... skeleton_2단_13.hwpx
-  params.json         계열별: skeleton 파일 / 줄간격 라벨→% / 본문 paraPr id
-  build.py            CLI: 스켈레톤 선택 → header 줄간격 주입 → (section0 생성) → rezip
-  out/                생성물
-  spike/              검증용 임시 (git 무시 대상)
+validation/
+  params.json         계열별: base_template(= ../templates/ 보통 정본) / 줄간격 라벨→% / 본문 paraPr id
+  build.py            CLI: 기준 정본 선택 → header 줄간격 주입 → (section0 생성) → rezip
+  gen_section.py      section0 본문 생성기(루트 hwpx-tpl-export.js 이식)
+  content.json        샘플 입력(NE_POOL 구조)
+  out/                생성물(git 무시)
 ```
 
 `params.json`의 `body_paraPr_ids`는 "모든 줄간격 변형에서 값==% 인 paraPr"만 (엄격) → 손편집 표류 자동 배제.
