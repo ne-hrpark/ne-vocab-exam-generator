@@ -6,7 +6,10 @@
  *   (레거시 createHWP.asp가 같은 이유로 HWPML을 썼다 — 확장자만 .hwp, 내용은 XML.)
  *
  * 방식(중요): 정본 템플릿 본문교체(hwpx-tpl-export.js)와 달리 이것은 from-scratch 생성이다.
- *   HWPML 정본 템플릿이 없어(한글이 저장한 .hml 부재) 레이아웃을 코드가 직접 조립한다.
+ *   한글이 저장한 참조 .hml(예: 어휘시험지_2단_11_보통(160%)_hml.hml=Ver2.91, 타사/동아_*.hml=Ver2.8)의
+ *   구조(탭정의·RIGHT 정지점 2×컬럼폭=51392 등)를 '설계 참조'로만 쓰고, 런타임엔 .hml을 읽지 않는다
+ *   (fetch/loadAsync 없음). 즉 참조 .hml을 편집·치환하는 게 아니라 같은 구조의 HWPML을 코드가 처음부터 찍는다.
+ *   ▷ 본문교체용 '정본 30종 세트'는 없어 from-scratch를 택함(=HWPX 방식과의 차이). 참조 .hml 자체는 존재함.
  *   → 레이아웃 품질은 .hwpx(정본 30종)보다 단순하다. 구버전 호환이 우선이라는 결정에 따른 1차선.
  *   품질이 부족하면 방식 B(HWPML 정본 30종 + 본문교체)로 승급.
  *
@@ -566,7 +569,8 @@
         if (perr && perr.length) throw new Error('HWPML XML 파싱 오류(내부 조립 실패)');
       }
       var modeLabel = global.neViewModeLabel ? global.neViewModeLabel(cfg) : '문제';
-      var saveName = '어휘시험지_' + modeLabel + '_' + cfg.columns + '단_' + cfg.size + '_' + cfg.gapLabel + '(' + cfg.ls + '%).hwp';
+      var titleName = safeFileTitle(cfg.header && cfg.header.title);   // 파일명 접두 = 시험지명(wzTitle). 비면 '어휘시험지'.
+      var saveName = titleName + '_' + modeLabel + '_' + cfg.columns + '단_' + cfg.size + '_' + cfg.gapLabel + '(' + cfg.ls + '%).hwp';
       var blob = new Blob([doc], { type: 'application/octet-stream' });
       (global.saveBlobCompat || saveBlobFallback)(blob, saveName);
     } catch (e) {
@@ -581,6 +585,11 @@
     a.href = URL.createObjectURL(blob); a.download = name;
     document.body.appendChild(a); a.click(); a.remove();
     setTimeout(function () { URL.revokeObjectURL(a.href); }, 1000);
+  }
+  // 저장 파일명 접두 = 시험지명(wzTitle). 파일명 금지문자 제거·공백정리 후 비면 '어휘시험지' 폴백.
+  function safeFileTitle(t) {
+    var s = (t == null ? '' : String(t)).replace(/[\\\/:*?"<>|\r\n\t]/g, '').replace(/\s+/g, ' ').trim();
+    return s || '어휘시험지';
   }
 
   global.downloadHwpTpl = downloadHwpTpl;

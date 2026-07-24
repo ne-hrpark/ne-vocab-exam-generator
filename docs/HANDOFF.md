@@ -14,7 +14,8 @@
 - 원본 프로토타입: `ne-vocabulary-test-builder v2.6`
 
 ## 4. 구현 범위
-- HWPX 생성(정본 템플릿 30종 본문교체) · DOCX 생성(동방식) · HWP 생성(HWPML from-scratch, 구버전 호환)
+- HWPX 생성(정본 템플릿 18종 본문교체) · DOCX 생성(동방식) · HWP 생성(HWPML from-scratch, 구버전 호환)
+  - ※ **헤더는 정본이 아니라 코드로 재조립**(`print_sample_0722` 최종 인쇄본 참고), **본문(콘텐츠·레이아웃)은 정본 템플릿 18종 참고** — 출처가 다름(BR-EXP-012)
 - 표시 모드 4종(문제/정답/문제+정답/스펠링)
 - 글자크기 3종 × 문항간격 3단계 × 단수(1·2단) SSOT 규칙
 - 1단 유형 후미배치·재번호, 밑줄 균일화, 뷰어 호환 처리
@@ -30,7 +31,7 @@
 Exam → QuestionGroup → ExamItem(→ WordbankRow). Export 설정은 ExportConfig(VO). → [DOMAIN_MODEL.md](DOMAIN_MODEL.md)
 
 ## 7. 핵심 Business Rule
-BR-EXP-001(3포맷 목적구분)·002/003(크기·간격 SSOT)·005(1단 후미배치)·007(유형별 단수)·009(템플릿 본문교체). → [BUSINESS_RULES.md](BUSINESS_RULES.md)
+BR-EXP-001(3포맷 목적구분)·002/003(크기·간격 SSOT)·005(1단 후미배치)·007(유형별 단수)·009(템플릿 본문교체)·012(헤더=코드 재조립/본문=정본 템플릿). → [BUSINESS_RULES.md](BUSINESS_RULES.md)
 
 ## 8. 사용자 시나리오
 시험지 설정(단수·크기·간격·표시모드) → 다운로드 버튼(HWP/HWPX/DOCX) → 파일 생성·저장.
@@ -52,7 +53,7 @@ idle→generating→success/error. 오류: 템플릿404·JSZip미로드·blob거
 
 ## 14. 테스트와 검증 결과
 - 자동 테스트: **없음**
-- 수행한 검증: HWPX 열림검증(jsdom+python-hwpx), Node 오라클 diff(HWPX 30/30 바이트 일치), 브라우저 다운로드 수동 확인
+- 수행한 검증: HWPX 열림검증(jsdom+python-hwpx), Node 오라클 diff(테스트 30케이스 바이트 일치 — 템플릿 수 아님), 브라우저 다운로드 수동 확인
 - 남은 검증: 각 뷰어(한글/워드) 육안 레이아웃 확인, AC-EXP-001~008 테스트화
 
 ## 15. 미결정 사항 (운영 착수 Gate — 가이드 §19.3)
@@ -67,6 +68,7 @@ idle→generating→success/error. 오류: 템플릿404·JSZip미로드·blob거
 - 정본 템플릿을 base64 내장에서 자산 관리 체계로 이관
 - AC를 자동 테스트(spec·E2E)로 전환, 회귀 대상 정의
 - 생성 방식(클라이언트/서버) 결정 후 아키텍처 확정
+- (선택) **.hwp를 from-scratch → 정본(HWPML) 본문교체로 전환** — 현재는 ① from-scratch 유지(동작·검증 완료). 1단 정본 `.hml` 3종(9/11/13pt)을 `hwp_0723_hml/`에 확보해 둠(미반영). 2단 지원 시 2단 .hml 3종 추가 필요 + 구버전 한글 실열림 확인
 
 ---
 

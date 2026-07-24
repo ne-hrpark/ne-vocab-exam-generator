@@ -1189,7 +1189,8 @@
       var newSection = buildSection0(section0, groups, { columns: cfg.columns, size: cfg.size, qa: cfg.qa, spell: cfg.spell, ansOnly: cfg.ansOnly, header: cfg.header, headerXml: newHeader, nsPP: nsPP, dividerPP: dividerPP });
       var out = await repackage(zip, { 'Contents/section0.xml': newSection, 'Contents/header.xml': newHeader });
       var modeLabel = global.neViewModeLabel ? global.neViewModeLabel(cfg) : '문제';   // 문제/정답/문제+정답
-      var saveName = '어휘시험지_' + modeLabel + '_' + cfg.columns + '단_' + cfg.size + '_' + cfg.gapLabel + '(' + cfg.ls + '%).hwpx';   // 라벨=실제 렌더 줄간격(=템플릿 OWPML 값). 템플릿 로드도 cfg.ls로 일치.
+      var titleName = safeFileTitle(cfg.header && cfg.header.title);   // 파일명 접두 = 시험지명(wzTitle). 비면 '어휘시험지'.
+      var saveName = titleName + '_' + modeLabel + '_' + cfg.columns + '단_' + cfg.size + '_' + cfg.gapLabel + '(' + cfg.ls + '%).hwpx';   // 라벨=실제 렌더 줄간격(=템플릿 OWPML 값). 템플릿 로드도 cfg.ls로 일치.
       (global.saveBlobCompat || saveBlobFallback)(out, saveName);
     } catch (e) {
       alert('HWPX 생성 오류: ' + (e && e.message ? e.message : e));
@@ -1213,8 +1214,14 @@
     return z.generateAsync({ type: outType || 'blob', mimeType: 'application/octet-stream', compression: 'DEFLATE' });
   }
 
+  // 저장 파일명 접두 = 시험지명(wzTitle). 파일명 금지문자 제거·공백정리 후 비면 '어휘시험지' 폴백.
+  function safeFileTitle(t) {
+    var s = (t == null ? '' : String(t)).replace(/[\\\/:*?"<>|\r\n\t]/g, '').replace(/\s+/g, ' ').trim();
+    return s || '어휘시험지';
+  }
+
   // 설정 → 템플릿 파일명 토큰. gapLabel·ls는 SSOT(ne-export-common.js)로 계산해
-  //   실제 30개 파일명(어휘시험지_{단}단_{크기}_{간격}({줄간격}%).hwpx)과 정확히 일치시킨다.
+  //   실제 정본 18개 파일명(어휘시험지_{단}단_{크기}_{간격}({줄간격}%).hwpx)과 정확히 일치시킨다.
   // 시험지 보기 옵션(미리보기 라디오와 동일): '문제'=q / '정답'=ans(정답만) / '정답표시시험지'=qa
   function curViewMode() {
     var r = document.querySelector && document.querySelector('input[name="viewopt"]:checked');

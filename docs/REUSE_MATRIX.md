@@ -12,8 +12,8 @@
 | `hwpx-tpl-export.js` | R1 | HWPX 생성 로직(템플릿 본문교체). 방식·좌표 지식은 참고 가치 높음 | 서버 생성 여부 결정 후 재설계 | AX Backend |
 | `docx-tpl-export.js` | R1 | DOCX 생성 로직. 동상 | 동상 | AX Backend |
 | `hwpml-export.js` | R1 | HWP(HWPML) from-scratch 생성. 구버전 호환 참고용 | 운영 요구 시 재구현 | AX Backend |
-| `templates.js` | R1 | HWPX 정본 30종(base64). 레이아웃 기준 자산은 유효하나 base64 내장 형태는 폐기 | 자산 저장소·버전관리 체계로 이관 | 콘텐츠/AX |
-| `docx-templates.js` | R1 | DOCX 정본 30종(base64). 동상 | 동상 | 콘텐츠/AX |
+| `templates.js` | R1 | HWPX 정본 18종(텍스트 내장). 레이아웃 기준 자산은 유효하나 JS 내장 형태는 폐기 | 자산 저장소·버전관리 체계로 이관 | 콘텐츠/AX |
+| `docx-templates.js` | R1 | DOCX 정본 18종 실참조(base64, 디스크 백업 30). 동상 | 동상 | 콘텐츠/AX |
 | `index.html` | R0 | 단일 HTML·인라인 스타일·목업 UI(팀 공동작업). 가이드 §4.4 전형적 R0 | 해당 없음(운영은 Next.js로 신규) | 기획/FE |
 | `data.js` | R0 | 렌더 완료 HTML 포함 정적 샘플 | 해당 없음 | 기획 |
 | `data.hwp.js` | R0 | 하드코딩 어휘 샘플. 운영은 DB/API | 해당 없음 | 기획 |
@@ -31,3 +31,5 @@
 2. 정본 템플릿 본문교체 방식(from-scratch 대비 레이아웃 안정성)
 3. 1단 유형 후미배치로 '전체폭→2단' 경계 제거
 4. 글자크기×문항간격×줄간격 SSOT 매핑 표
+5. **헤더는 정본이 아니라 코드 재조립**(`print_sample_0722` 참고, 세 포맷 동일 규칙) — 정본 헤더 교체 불필요, 재구현 시 헤더 로직은 별도로 봐야 함(BR-EXP-012)
+6. **.hwp 줄간격은 RATIO↔Percent 렌더 차 보정**이 핵심(실측값 그대로 쓰면 좁아짐) — 재구현 시 "정본 숫자"가 아니라 "정본의 보이는 간격"을 맞출 것(BR-EXP-004)

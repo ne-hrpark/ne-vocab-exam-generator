@@ -672,7 +672,8 @@
       });
       var out = await repackage(zip, { 'word/document.xml': newDoc });
       var modeLabel = global.neViewModeLabel ? global.neViewModeLabel(cfg) : '문제';   // 문제/정답/문제+정답
-      var saveName = '어휘시험지_' + modeLabel + '_' + cfg.columns + '단_' + cfg.size + '_' + cfg.gapLabel + '.docx';
+      var titleName = safeFileTitle(cfg.header && cfg.header.title);   // 파일명 접두 = 시험지명(wzTitle). 비면 '어휘시험지'.
+      var saveName = titleName + '_' + modeLabel + '_' + cfg.columns + '단_' + cfg.size + '_' + cfg.gapLabel + '.docx';
       (global.saveBlobCompat || saveBlobFallback)(out, saveName);
     } catch (e) {
       alert('DOCX 생성 오류: ' + (e && e.message ? e.message : e));
@@ -686,6 +687,11 @@
     a.href = URL.createObjectURL(blob); a.download = name;
     document.body.appendChild(a); a.click(); a.remove();
     setTimeout(function () { URL.revokeObjectURL(a.href); }, 1000);
+  }
+  // 저장 파일명 접두 = 시험지명(wzTitle). 파일명 금지문자 제거·공백정리 후 비면 '어휘시험지' 폴백.
+  function safeFileTitle(t) {
+    var s = (t == null ? '' : String(t)).replace(/[\\\/:*?"<>|\r\n\t]/g, '').replace(/\s+/g, ' ').trim();
+    return s || '어휘시험지';
   }
 
   global.downloadDocxTpl = downloadDocxTpl;
