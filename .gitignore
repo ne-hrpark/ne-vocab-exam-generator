@@ -10,9 +10,17 @@ Thumbs.db
 # Node
 node_modules/
 
-# 템플릿은 원본 파일 대신 base64 내장 JS로 포함(추적):
-#   templates.js(HWPX 30개) · docx-templates.js(DOCX 30개)
-# → file:// 및 GitHub Pages 어디서든 fetch 없이 동작.
+# Python (빌드·검증 스크립트 실행 부산물)
+__pycache__/
+*.pyc
+validation/out/
+
+# 내장 JS는 추적함(실행용): templates.js(HWPX 18) · docx-templates.js(DOCX 18실참조)
+#   → 원본 templates/·docx/ 에서 build-*.py 로 재생성. file://·Pages 에서 fetch 없이 동작.
 
 # 백업 파일
 *.bak-*
+
+# Office 임시/잠금 파일
+~$*
+*.tmp
